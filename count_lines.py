@@ -10,7 +10,7 @@ setup below is for a project using mixed python and C# files
 directory can have it's value set here, or passed as a commandline argument
 '''
 
-directory = r'A:\bsolute\Path\To\FilesDirectory'
+directory = r''  # r'A:\bsolute\Path\To\FilesDirectory'
 verbose_output = False  # Prints all files counted
 language_extensions = ['.py', '.cs']
 ignore_files = ['']  # Place name of file and extension here. Not full path
@@ -23,13 +23,17 @@ block_comments = [('/*', '*/'), ("'''", "'''")]
 
 
 def count_lines(directory):
-    if len(sys.argv):
+    if len(sys.argv) > 1:
         directory = sys.argv[1]
 
+    if not directory:
+        directory = os.getcwd()
+
     print('opening ' + directory + '\n')
-    global code_lines
-    global blank_lines
-    global comment_lines
+    code_lines = 0
+    blank_lines = 0
+    comment_lines = 0
+    total_lines = 0
 
     for root, subfolders, files in os.walk(directory, topdown=True):
         subfolders[:] = [d for d in subfolders if d not in ignore_dirs]
@@ -88,9 +92,5 @@ def check_block_comment(line, in_block_comment):
             return False
     return True
 
-
-code_lines = 0
-blank_lines = 0
-comment_lines = 0
 
 count_lines(directory)
