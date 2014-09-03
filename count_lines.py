@@ -49,7 +49,13 @@ def count_lines(directory):
             file_obj = open(filename, 'r')
 
             in_block_comment = False
+            # Keep a running count of the counted lines, but don't add them to total
+            # until we're sure this isn't file-trailing whitespace
+            lines_counted = 0
+
             for line in file_obj:
+                lines_counted += 1
+                end_of_code = True  # Are we at the end of code-content? (not actual eof)
                 line = line.strip()
 
                 # Check if we're in a block comment
@@ -61,21 +67,30 @@ def count_lines(directory):
                     blank_lines += 1
                 # Check if a block comment is at the start of the line
                 elif any(line.startswith(seq[0]) for seq in block_comments):
+                    end_of_code = False
                     comment_lines += 1
                     in_block_comment = check_block_comment(line, in_block_comment)
                 # Check for block comments after some valid code (eww)
                 elif any(seq[0] in line for seq in block_comments):
+                    end_of_code = False
                     code_lines += 1
                     in_block_comment = check_block_comment(line, in_block_comment)
                 # Check for single line comment with no code
                 elif any(line.startswith(seq[0]) for seq in single_line_comments):
+                    end_of_code = False
                     comment_lines += 1
                 else:
+                    end_of_code = False
                     code_lines += 1
+
+                if not end_of_code:
+                    total_lines += lines_counted
+                    lines_counted = 0
 
     print(str(code_lines) + ' lines of code counted.')
     print(str(blank_lines) + ' blank lines counted.')
     print(str(comment_lines) + ' lines of comments counted.')
+    print(str(total_lines) + ' total lines counted.')
 
 
 # Tests whether the current line ends a block comment
