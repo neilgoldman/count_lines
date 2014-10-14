@@ -46,7 +46,7 @@ def count_lines(directory):
                 print('file: ' + f)
 
             filename = os.path.join(root, f)
-            file_obj = open(filename, 'r')
+            file_obj = open(filename, 'r', encoding='utf-8')
 
             in_block_comment = False
             # Keep a running count of the counted lines, but don't add them to total
@@ -86,6 +86,8 @@ def count_lines(directory):
                 if not end_of_code:
                     total_lines += lines_counted
                     lines_counted = 0
+
+            file_obj.close()
 
     print(str(code_lines) + ' lines of code counted.')
     print(str(blank_lines) + ' blank lines counted.')
