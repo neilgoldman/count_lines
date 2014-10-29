@@ -2,6 +2,7 @@ __author__ = "Neil Goldman"
 
 import os
 import sys
+import io
 
 '''
 Change the following vars to match your project, the example
@@ -46,7 +47,7 @@ def count_lines(directory):
                 print('file: ' + f)
 
             filename = os.path.join(root, f)
-            file_obj = open(filename, 'r', encoding='utf-8')
+            file_obj = io.open(filename, 'r', encoding='utf-8')
 
             in_block_comment = False
             # Keep a running count of the counted lines, but don't add them to total
