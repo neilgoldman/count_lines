@@ -13,14 +13,23 @@ directory can have it's value set here, or passed as a commandline argument
 
 directory = r''  # r'A:\bsolute\Path\To\FilesDirectory'
 verbose_output = False  # Prints all files counted
-language_extensions = ['.py', '.cs']
+language_extensions = ['.py', '.cs', '.js', '.css', '.html']
 ignore_files = ['']  # Place name of file and extension here. Not full path
-ignore_dirs = ['.idea', '.git']  # Directories to be ignored
+ignore_dirs = ['.idea', '.git', 'node_modules', 'bower_components']  # Directories to be ignored
+
+language_map = {
+    '.py': 'Python',
+    '.cs': 'C#',
+    '.js': 'JavaScript',
+    '.css': 'CSS',
+    '.html': 'HTML',
+}
+language_count_map = {v:{'total': 0, 'code': 0, 'comments': 0, 'whitespace': 0} for k,v in language_map.items()}
 
 # Append any single-line comment sequences in any order
 single_line_comments = ['#', '//']
 # Add tuples containing block-comment opening and closing sequences
-block_comments = [('/*', '*/'), ("'''", "'''")]
+block_comments = [('/*', '*/'), ("'''", "'''"), ('"""', '"""'), ('<!--', '-->')]
 
 
 def count_lines(directory):
@@ -45,6 +54,7 @@ def count_lines(directory):
                 continue
             if verbose_output:
                 print('file: ' + f)
+            current_lang = language_map[extension]
 
             filename = os.path.join(root, f)
             file_obj = io.open(filename, 'r', encoding='utf-8')
@@ -56,33 +66,40 @@ def count_lines(directory):
 
             for line in file_obj:
                 lines_counted += 1
+                language_count_map[current_lang]['total'] += 1
                 end_of_code = True  # Are we at the end of code-content? (not actual eof)
                 line = line.strip()
 
                 # Check if we're in a block comment
                 if in_block_comment:
                     comment_lines += 1
+                    language_count_map[current_lang]['comments'] += 1
                     in_block_comment = check_block_comment(line, in_block_comment)
                 # Check for blank lines
                 elif not line:
                     blank_lines += 1
+                    language_count_map[current_lang]['whitespace'] += 1
                 # Check if a block comment is at the start of the line
                 elif any(line.startswith(seq[0]) for seq in block_comments):
                     end_of_code = False
                     comment_lines += 1
+                    language_count_map[current_lang]['comments'] += 1
                     in_block_comment = check_block_comment(line, in_block_comment)
                 # Check for block comments after some valid code (eww)
                 elif any(seq[0] in line for seq in block_comments):
                     end_of_code = False
                     code_lines += 1
+                    language_count_map[current_lang]['code'] += 1
                     in_block_comment = check_block_comment(line, in_block_comment)
                 # Check for single line comment with no code
                 elif any(line.startswith(seq[0]) for seq in single_line_comments):
                     end_of_code = False
                     comment_lines += 1
+                    language_count_map[current_lang]['comments'] += 1
                 else:
                     end_of_code = False
                     code_lines += 1
+                    language_count_map[current_lang]['code'] += 1
 
                 if not end_of_code:
                     total_lines += lines_counted
@@ -94,6 +111,19 @@ def count_lines(directory):
     print(str(blank_lines) + ' blank lines counted.')
     print(str(comment_lines) + ' lines of comments counted.')
     print(str(total_lines) + ' total lines counted.')
+    print()
+    print('Breakdown by language:')
+    for lang_name in language_count_map.keys():
+        if language_count_map[lang_name]['total'] == 0:
+            continue
+        print(lang_name)
+        for line_type in ['total', 'code', 'comments', 'whitespace']:
+            if line_type == 'total':
+                print('\t{} lines {}'.format(language_count_map[lang_name][line_type], line_type))
+            else:
+                percent = language_count_map[lang_name][line_type] / language_count_map[lang_name]['total']
+                percent = percent * 100.0
+                print('\t{} lines of {} ({:.1f}%)'.format(language_count_map[lang_name][line_type], line_type, percent))
 
 
 # Tests whether the current line ends a block comment
