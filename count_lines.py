@@ -62,23 +62,25 @@ def count_lines(directory):
             in_block_comment = False
             # Keep a running count of the counted lines, but don't add them to total
             # until we're sure this isn't file-trailing whitespace
+            # Same thing with whitespace count. We don't want to count trailing whitespace unless it has valid code/comments after
+            # Technically we can do tmp_whitespace_counter = lines_counted-1 at the end of the loop, but this is easier to reason about.
             lines_counted = 0
+            tmp_whitespace_counter = 0
 
             for line in file_obj:
                 lines_counted += 1
-                language_count_map[current_lang]['total'] += 1
                 end_of_code = True  # Are we at the end of code-content? (not actual eof)
                 line = line.strip()
 
                 # Check if we're in a block comment
                 if in_block_comment:
+                    end_of_code = False
                     comment_lines += 1
                     language_count_map[current_lang]['comments'] += 1
                     in_block_comment = check_block_comment(line, in_block_comment)
                 # Check for blank lines
                 elif not line:
-                    blank_lines += 1
-                    language_count_map[current_lang]['whitespace'] += 1
+                    tmp_whitespace_counter += 1
                 # Check if a block comment is at the start of the line
                 elif any(line.startswith(seq[0]) for seq in block_comments):
                     end_of_code = False
@@ -101,9 +103,16 @@ def count_lines(directory):
                     code_lines += 1
                     language_count_map[current_lang]['code'] += 1
 
-                if not end_of_code:
+                if not end_of_code: # We just read a non-whitespace line, so total things up
+                    blank_lines += tmp_whitespace_counter
+                    language_count_map[current_lang]['whitespace'] += tmp_whitespace_counter
+
+                    language_count_map[current_lang]['total'] += lines_counted
                     total_lines += lines_counted
+
+                    tmp_whitespace_counter = 0
                     lines_counted = 0
+                # else: we may be at the end of the code, but reading 100 empty lines at the end of the file, don't count that.
 
             file_obj.close()
 
