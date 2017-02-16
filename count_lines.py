@@ -49,15 +49,17 @@ def count_lines(directory):
     comment_lines = 0
     total_lines = 0
 
-    for root, subfolders, files in os.walk(directory, topdown=True):
-        subfolders[:] = [d for d in subfolders if d not in ignore_dirs]
+    for root, dirnames, files in os.walk(directory, topdown=True):
+        # Filter any directories in the ignore_dirs before calling os.walk
+        # You can modify dirnames in-place and os.walk will use that modified list in the walk (when topdown=True).
+        dirnames[:] = [d for d in dirnames if d not in ignore_dirs]
 
         for f in files:
             name, extension = os.path.splitext(f)
             if f in ignore_files or extension not in language_extensions:
                 continue
             if verbose_output:
-                print('file: ' + f)
+                print('file: ' + os.path.join(root, f))
             current_lang = language_map[extension]
 
             filename = os.path.join(root, f)
