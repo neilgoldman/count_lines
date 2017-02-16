@@ -35,6 +35,10 @@ block_comments = [('/*', '*/'), ("'''", "'''"), ('"""', '"""'), ('<!--', '-->')]
 def count_lines(directory):
     if len(sys.argv) > 1:
         directory = sys.argv[1]
+        # Sometimes (on windows at least), using a single backslash at the end of a quoted directory name will include the quote
+        # e.g. thecount_lines.py "C:\my_projects\src\",sys.argv[1] will be equal to `C:\my_projects\src"`
+        if directory.endswith('"') or directory.endswith('"'):
+            directory = directory[:-1]
 
     if not directory:
         directory = os.getcwd()
