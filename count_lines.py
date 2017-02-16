@@ -113,8 +113,8 @@ def count_lines(directory):
                     blank_lines += tmp_whitespace_counter
                     language_count_map[current_lang]['whitespace'] += tmp_whitespace_counter
 
-                    language_count_map[current_lang]['total'] += lines_counted
                     total_lines += lines_counted
+                    language_count_map[current_lang]['total'] += lines_counted
 
                     tmp_whitespace_counter = 0
                     lines_counted = 0
