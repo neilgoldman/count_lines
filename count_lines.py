@@ -122,10 +122,10 @@ def count_lines(directory):
 
             file_obj.close()
 
-    print(str(code_lines) + ' lines of code counted.')
-    print(str(blank_lines) + ' blank lines counted.')
-    print(str(comment_lines) + ' lines of comments counted.')
     print(str(total_lines) + ' total lines counted.')
+    print(str(code_lines) + ' lines of code counted.')
+    print(str(comment_lines) + ' lines of comments counted.')
+    print(str(blank_lines) + ' lines of whitespace counted.')
     print()
     print('Breakdown by language:')
     for lang_name in language_count_map.keys():
