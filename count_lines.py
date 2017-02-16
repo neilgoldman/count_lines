@@ -15,7 +15,7 @@ directory = r''  # r'A:\bsolute\Path\To\FilesDirectory'
 verbose_output = False  # Prints all files counted
 language_extensions = ['.py', '.cs', '.js', '.css', '.html']
 ignore_files = ['']  # Place name of file and extension here. Not full path
-ignore_dirs = ['.idea', '.git', 'node_modules', 'bower_components']  # Directories to be ignored
+ignore_dirs = ['.idea', '.git', 'node_modules', 'bower_components', '__pycache__', 'migrations', 'hooks', 'plugins', 'lib', 'assets', 'logs']  # Directories to be ignored
 
 language_map = {
     '.py': 'Python',
